@@ -7,8 +7,8 @@ each connector translates Wizarr's expectations into whatever the target service
 actually speaks.
 
 All code is sanitized for publication: hostnames, tailnet names, addresses and
-deployment identifiers are placeholders (`*.example.ts.net`, `100.64.0.0/10` doc
-addresses, `node-*` host names, `alice` fixture user). Adapt them to your deployment.
+deployment identifiers are placeholders (`*.example.ts.net`, `100.64.0.0/10` example
+addresses requiring replacement, `node-*` host names, `alice` fixture user). Adapt them to your deployment.
 
 ## Connectors
 
