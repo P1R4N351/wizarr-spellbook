@@ -1,0 +1,31 @@
+[Unit]
+Description=PSCode collaborator provisioning shim (wizarr bridge)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/pscode-collab/shim.py
+# ROOT, deliberately, and only here (C16). the collab host is an UNPRIVILEGED LXC:
+# rootless podman cannot write uid_map inside it even with nesting=1
+# ("newuidmap: Operation not permitted"), and all 18 of the host's existing
+# containers already run rootful (podman info Rootless=false). Running the
+# shim unprivileged and shelling out to a privileged helper would be the
+# stronger design; this matches the host's established pattern instead, and
+# the trade-off is recorded rather than hidden.
+#
+# What this does NOT give up -- every collaborator-container control still
+# applies, and they are what actually confine the untrusted party:
+#   --network collab-net (internal, no external route)
+#   --cap-drop ALL, --security-opt no-new-privileges
+#   USER collab (uid 10001) inside the image, never root
+#   --memory/--cpus caps, loopback-only publish
+# The BROKER stays unprivileged (it needs no podman) -- see its own unit.
+User=root
+Environment=HOME=/root
+Restart=always
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,63 @@
+# pscode-collab + the Piranesi shim, wired to the kudzu-gateway inference mesh.
+#
+# A thin layer on the built workspace image rather than a rebuild: the base is
+# an 800 MB Code-OSS server bundle that has not changed, and re-staging it to
+# add one VSIX would spend minutes and a gigabyte to no purpose.
+#
+# The shim is installed as a USER extension (into the server data dir), never
+# copied into /opt/pscode/extensions as a built-in. That is the lesson from the
+# PSCode.app built-in shim: VS Code refuses `--install-extension` against a
+# built-in, which killed the self-update path there and took two sessions to
+# diagnose. Here it also keeps `--uninstall-extension` working.
+FROM localhost/pscode-collab:1.128.0
+
+COPY --chown=collab:collab piranesi-shim.vsix /tmp/shim.vsix
+RUN /opt/pscode/bin/code-server-oss --install-extension /tmp/shim.vsix \
+      --server-data-dir /home/collab/.pscode \
+ && rm -f /tmp/shim.vsix \
+ && /opt/pscode/bin/code-server-oss --list-extensions \
+      --server-data-dir /home/collab/.pscode | grep -qx piranesi.piranesi-shim
+
+# ---------------------------------------------------------------------------
+# WORKBENCH MODPACK (added 2026-08-29)
+#
+# Installing the VSIX does not produce PSCode. A full PSCode is a rebranded
+# fork of microsoft/vscode; this lane is stock Code-OSS plus one extension, and
+# `.vscodeignore` excludes scripts/** from the VSIX, so every workbench-level
+# patch is physically absent from this image. That is why the mode picker still
+# reads "Autopilot (Preview)" and the product still identifies as "Code - OSS".
+#
+# This MUST run as root and at BUILD time. The extension cannot do it:
+#   - src/piranesiModeHeal.ts returns early unless platform === 'darwin';
+#   - /opt/pscode/out/nls.messages.* are root:root 0644 while the workbench
+#     runs as uid 10001(collab), so its write would throw EACCES; and
+#   - its healJs does JSON.parse on the array slice, which throws on this
+#     build (Code-OSS emits 198 entries as single-quoted JS literals).
+# Doing it here also retires the reason that self-heal exists -- rebuilds
+# reverting the patch -- because the image IS the rebuild.
+#
+# `node` is not on PATH and no distro nodejs is installed; the server bundle
+# ships its own (v24.17.0), which is what the patcher runs under. Verified in
+# --verify mode against the live bundle on 2026-08-29: 22 nls relabels and 8
+# product keys pending, zero writes.
+#
+# The second invocation is a FAIL-CLOSED build gate: after a successful apply
+# the patcher must report "nls 0 relabelled". If the patch silently did not
+# take, the build fails here rather than shipping an unpatched workbench that
+# looks fine.
+USER root
+COPY patch-workbench-modpack.js /tmp/patch-workbench-modpack.js
+RUN /opt/pscode/node /tmp/patch-workbench-modpack.js --app-root /opt/pscode \
+ && /opt/pscode/node /tmp/patch-workbench-modpack.js --app-root /opt/pscode --verify \
+      | tee /dev/stderr | grep -q 'nls 0 relabelled' \
+ && rm -f /tmp/patch-workbench-modpack.js
+USER collab
+# ---------------------------------------------------------------------------
+
+# MACHINE scope, not User: this is a property of the container, not a taste.
+# (The shim declares these settings at `window` scope, so a workspace
+# .vscode/settings.json in an invited repo can still override them -- the
+# egress allowlist, not this file, is what bounds where a redirected endpoint
+# could actually reach.)
+COPY --chown=collab:collab machine-settings.json \
+     /home/collab/.pscode/data/workstationhine/settings.json

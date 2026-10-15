@@ -1,0 +1,55 @@
+# pscode-collab -kudzu4 — chat without GitHub, through the Piranesi waist.
+# Overlay on -kudzu3 (Piranesi-Main DECIDE: A, cs_mv0aff9e_12, 2026-10-09).
+#
+# Three deltas, nothing else:
+#   1. shim 0.1.0-alpha.1 -> 0.1.0-alpha.2 (adds the `piranesi-waist` model
+#      provider whose picker is the waist's /v1/models, and makes @piranesi a
+#      default chat participant). Uninstall-then-install, because VS Code
+#      refuses to overwrite a user extension in place.
+#   2. the workbench modpack re-applied: it now also removes
+#      product.json `defaultChatAgent` (the Copilot setup / GitHub sign-in
+#      gate) and grants the shim the `defaultChatParticipant` proposal.
+#      Same fail-closed verify gate as before, plus a product.json assertion.
+#   3. baked workstationhine settings point at the waist (no bearer here; the bearer
+#      arrives by a read-only mount at launch, see config.MACHINE_SETTINGS).
+FROM localhost/pscode-collab:1.128.0-kudzu3
+
+COPY --chown=collab:collab piranesi-shim.vsix /tmp/shim.vsix
+RUN /opt/pscode/bin/code-server-oss --uninstall-extension piranesi.piranesi-shim \
+      --server-data-dir /home/collab/.pscode \
+ && /opt/pscode/bin/code-server-oss --install-extension /tmp/shim.vsix \
+      --server-data-dir /home/collab/.pscode \
+ && rm -f /tmp/shim.vsix \
+ && /opt/pscode/bin/code-server-oss --list-extensions --show-versions \
+      --server-data-dir /home/collab/.pscode | grep -qx 'piranesi.piranesi-shim@0.1.0-alpha.4'
+
+USER root
+COPY patch-workbench-modpack.js /tmp/patch-workbench-modpack.js
+RUN /opt/pscode/node /tmp/patch-workbench-modpack.js --app-root /opt/pscode \
+ && /opt/pscode/node /tmp/patch-workbench-modpack.js --app-root /opt/pscode --verify \
+      | tee /dev/stderr | grep -q 'nls 0 relabelled' \
+ && /opt/pscode/node -e 'const p=require("/opt/pscode/product.json"); \
+      if (p.defaultChatAgent) throw new Error("defaultChatAgent still present"); \
+      const g=(p.extensionEnabledApiProposals||{})["piranesi.piranesi-shim"]||[]; \
+      if (!g.includes("defaultChatParticipant")) throw new Error("proposal not granted"); \
+      console.log("product.json: chat-without-github OK")' \
+ && rm -f /tmp/patch-workbench-modpack.js
+# BROWSER-VISIBLE BRANDING (2026-10-09): the PWA manifest, favicon and
+# installed-app icons were stock "Code - OSS" on every kudzu image because the
+# web-branding overlay (72652c9f) sat on a tag this lineage no longer builds
+# from. Same patcher, same assets, same fail-closed verify — now in the image
+# that is actually deployed. The client-bundle identity literal is handled by
+# the modpack step above.
+COPY patch-web-branding.js /tmp/patch-web-branding.js
+COPY assets/piranesi-web-icon-192.png /tmp/piranesi-web-icon-192.png
+COPY assets/piranesi-web-icon-512.png /tmp/piranesi-web-icon-512.png
+COPY assets/piranesi-web-favicon.ico /tmp/piranesi-web-favicon.ico
+RUN /opt/pscode/node /tmp/patch-web-branding.js --app-root /opt/pscode \
+      --icon-192 /tmp/piranesi-web-icon-192.png --icon-512 /tmp/piranesi-web-icon-512.png \
+      --favicon /tmp/piranesi-web-favicon.ico \
+ && /opt/pscode/node /tmp/patch-web-branding.js --app-root /opt/pscode --verify \
+ && rm -f /tmp/patch-web-branding.js /tmp/piranesi-web-icon-*.png /tmp/piranesi-web-favicon.ico
+USER collab
+
+COPY --chown=collab:collab machine-settings.json \
+     /home/collab/.pscode/data/workstationhine/settings.json

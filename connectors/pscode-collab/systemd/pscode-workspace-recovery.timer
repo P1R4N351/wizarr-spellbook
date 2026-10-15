@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodically repair active PSCode workspace runtime state
+
+[Timer]
+OnBootSec=75
+OnUnitActiveSec=10min
+RandomizedDelaySec=15
+Persistent=true
+
+[Install]
+WantedBy=timers.target

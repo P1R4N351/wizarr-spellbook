@@ -1,0 +1,15 @@
+[Unit]
+Description=Navidrome subsonic user-provisioning shim (wizarr bridge)
+After=navidrome.service
+Wants=navidrome.service
+
+[Service]
+ExecStart=/usr/bin/python3 /usr/local/sbin/nd-subsonic-shim.py
+User=navidrome
+Restart=always
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

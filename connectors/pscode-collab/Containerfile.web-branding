@@ -1,0 +1,24 @@
+# Rebrands browser-visible PWA assets in the live PSCode collaborator image.
+#
+# Keep this as a small overlay on the established workbench-modpack image. The
+# base already applies PSCode product and mode branding while preserving the
+# required /opt/pscode/bin/code-server-oss entrypoint. This layer replaces only
+# the PWA manifest, favicon, and installed-app PNGs.
+ARG BASE_IMAGE=localhost/pscode-collab:1.128.0-kudzu2
+FROM ${BASE_IMAGE}
+
+USER root
+COPY patch-web-branding.js /tmp/patch-web-branding.js
+COPY assets/piranesi-web-icon-192.png /tmp/piranesi-web-icon-192.png
+COPY assets/piranesi-web-icon-512.png /tmp/piranesi-web-icon-512.png
+COPY assets/piranesi-web-favicon.ico /tmp/piranesi-web-favicon.ico
+
+RUN /opt/pscode/node /tmp/patch-web-branding.js \
+		--app-root /opt/pscode \
+		--icon-192 /tmp/piranesi-web-icon-192.png \
+		--icon-512 /tmp/piranesi-web-icon-512.png \
+		--favicon /tmp/piranesi-web-favicon.ico \
+	&& /opt/pscode/node /tmp/patch-web-branding.js --app-root /opt/pscode --verify \
+	&& rm -f /tmp/patch-web-branding.js /tmp/piranesi-web-icon-192.png /tmp/piranesi-web-icon-512.png /tmp/piranesi-web-favicon.ico
+
+USER collab

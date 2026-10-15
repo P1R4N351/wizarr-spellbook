@@ -1,0 +1,28 @@
+# PSCode workbench modpack — overlay on the existing kudzu image.
+#
+# WHY AN OVERLAY AND NOT A Containerfile.kudzu REBUILD. That file's first step
+# is `COPY piranesi-shim.vsix`, and the VSIX is not retained in the build
+# context (it is removed after install and the tree ignores nothing that would
+# restore it). Rebuilding it would therefore require fetching a VSIX from the
+# worker — which would ALSO upgrade the extension, a change nobody authorised
+# and one that would confound this one. Layering on the built image instead
+# keeps the extension byte-identical, so the ONLY delta in the resulting image
+# is the workbench patch. Containerfile.kudzu carries the same step for the
+# next genuine full rebuild.
+#
+# Runs as root because /opt/pscode is root:root while the workbench runs as
+# uid 10001(collab); uses the bundle's own node (v24.17.0) because no distro
+# nodejs is installed and `node` is not on PATH.
+#
+# The second invocation is a FAIL-CLOSED gate: after a good apply the patcher
+# must report "nls 0 relabelled". If the patch did not take, the build fails
+# here rather than shipping an unpatched workbench that looks patched.
+FROM localhost/pscode-collab:1.128.0-kudzu1
+
+USER root
+COPY patch-workbench-modpack.js /tmp/patch-workbench-modpack.js
+RUN /opt/pscode/node /tmp/patch-workbench-modpack.js --app-root /opt/pscode \
+ && /opt/pscode/node /tmp/patch-workbench-modpack.js --app-root /opt/pscode --verify \
+      | tee /dev/stderr | grep -q 'nls 0 relabelled' \
+ && rm -f /tmp/patch-workbench-modpack.js
+USER collab

@@ -1,0 +1,14 @@
+[Unit]
+Description=pscode-collab path router (broker + per-collaborator containers)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/pscode-collab/collab-router.py
+User=root
+Restart=always
+RestartSec=5
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

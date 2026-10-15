@@ -1,0 +1,18 @@
+[Unit]
+Description=PSCode collaborator broker (per-collaborator login and redirect)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/pscode-collab/broker.py
+User=pscode-collab
+Restart=always
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/pscode-collab
+ReadOnlyPaths=/run/collab
+
+[Install]
+WantedBy=multi-user.target

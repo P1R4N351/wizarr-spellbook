@@ -1,0 +1,18 @@
+[Unit]
+Description=pscode-collab egress allowlist (C20)
+# After netavark has built its own rules, so ours are layered on a settled
+# ruleset rather than racing it.
+After=network-online.target podman.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /opt/pscode-collab/collab-egress.nft
+ExecReload=/usr/sbin/nft -f /opt/pscode-collab/collab-egress.nft
+# Removing the table on stop is deliberate: a half-applied allowlist that
+# silently permits everything is worse than an obviously absent one.
+ExecStop=/usr/sbin/nft delete table inet pscode_collab
+
+[Install]
+WantedBy=multi-user.target

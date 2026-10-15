@@ -1,0 +1,15 @@
+[Unit]
+Description=pscode-collab public-front forwarder (localhost -> the collab host broker)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/bin/python3 /opt/collab-front-forwarder.py
+Restart=always
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+DynamicUser=yes
+
+[Install]
+WantedBy=multi-user.target

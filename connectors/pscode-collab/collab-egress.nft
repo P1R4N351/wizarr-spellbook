@@ -1,0 +1,87 @@
+#!/usr/sbin/nft -f
+# Egress allowlist for collaborator containers (C20).
+#
+# WHY THIS EXISTS: the design always called for "explicit firewall permits for
+# exactly two destinations" (Task 8). It was first implemented as a podman
+# --internal network, which C20 showed cannot express an allowlist at all --
+# internal means NO gateway, so there is nothing to permit through, and the
+# probe found gitea unreachable alongside everything else. An allowlist needs
+# a routable network plus these rules.
+#
+# Lives in its OWN table so netavark can flush and rebuild its rules without
+# touching these. Both chains are evaluated at their hooks; a drop here stands
+# regardless of what netavark accepts.
+#
+# Deliberately NOT permitted: DNS. gitea is reached by IP, so the collaborator
+# needs no resolver, and every name lookup is an exfiltration channel. Add a
+# registry here only when an invited repo actually needs one, by address.
+#
+# 2026-08-25: kudzu-gateway added, by address, for exactly the reason the
+# paragraph above anticipates -- the workspace's in-editor model provider
+# (piranesiShim "Kudzu Mesh") needs the household inference mesh, and without
+# this rule its every request times out rather than failing loudly.
+#
+# TWO doors, neither of them legacy-host. A single door would still route across the
+# whole mesh (the /routed/ path picks the least-loaded warmed host, and each
+# door carries its own backend fallbacks), so the second entry is not about
+# routing -- it is so a door-HOST outage does not require a firewall change to
+# recover from. legacy-host (100.64.0.10) also runs a door and is deliberately
+# absent: it goes last in any cascade and nothing may depend on it
+# (feedback_legacy-host_never_in_workflows), and it is being decommissioned.
+
+table inet pscode_collab
+delete table inet pscode_collab
+
+table inet pscode_collab {
+  set gitea_v4 {
+    type ipv4_addr
+    elements = { 100.64.0.10 }
+  }
+
+  # kudzu-gateway doors: node-prime (this CT's own host, so the nearest
+  # door) and node-blue. Verified live at v2.2.0 on 2026-08-25.
+  set kudzu_gw_v4 {
+    type ipv4_addr
+    elements = { 100.64.0.11, 100.64.0.12 }
+  }
+
+  # The Piranesi waist (piranesi-cli-rs gateway) — the in-editor chat's only
+  # model endpoint since -kudzu4. 2026-10-09, Piranesi-Main DECIDE: A
+  # (cs_mv0aff9e_12). It lives on legacy-host for now because legacy-host is the host that
+  # holds the astroclaw gateway with every household cloud key; that is in
+  # tension with the paragraph above and is recorded, not hidden. The waist's
+  # host is a deploy parameter (skills/piranesi-waist/deploy.sh): when the keys
+  # exist on a sibling, redeploy there and change this one element.
+  set waist_v4 {
+    type ipv4_addr
+    elements = { 100.64.0.13, 100.64.0.10 }
+  }
+
+  chain forward {
+    type filter hook forward priority filter + 10; policy accept;
+
+    # Only police traffic ORIGINATING in the collaborator subnet. Everything
+    # else -- including the router reaching a container -- is none of this
+    # chain's business.
+    ip saddr != 10.89.7.0/24 accept
+
+    # Replies to connections the collaborator legitimately opened.
+    ct state established,related accept
+
+    # THE ALLOWLIST: gitea smart-HTTP and gitea SSH, and the kudzu-gateway
+    # inference door. Nothing else.
+    ip daddr @gitea_v4 tcp dport { 18792, 2222 } accept
+    ip daddr @kudzu_gw_v4 tcp dport 18798 accept
+    ip daddr @waist_v4 tcp dport 18880 accept
+
+    # Anything else leaving the collaborator subnet is dropped, and counted so
+    # the denial is observable rather than silent.
+    counter drop
+  }
+
+  chain output {
+    type filter hook output priority filter + 10; policy accept;
+    # The host's own traffic is not policed here; this chain exists only so a
+    # future rule has an obvious home rather than being bolted onto forward.
+  }
+}

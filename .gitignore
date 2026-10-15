@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+
+# Node
+node_modules/
+
+# OS / editor
+.DS_Store
+._*
+*.swp
+
+# Runtime / local artifacts
+*.log
+*.pid
+*.sqlite3
+*.db
+*.secret
+*.token
+*.pem

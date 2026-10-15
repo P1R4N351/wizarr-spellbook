@@ -1,0 +1,18 @@
+[Unit]
+Description=Recover active PSCode workspaces after volatile runtime state loss
+After=network-online.target pscode-collab-shim.service
+Wants=network-online.target
+ConditionPathExists=/var/lib/pscode-collab/state.json
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/bin/python3 /opt/pscode-collab/recover.py
+TimeoutStartSec=60
+NoNewPrivileges=yes
+PrivateTmp=yes
+# Podman leaves its conmon helper running for the retained workspace. Delegate
+# its cgroup so systemd does not turn a successful one-shot recovery into a
+# timeout or kill the healthy container during unit cleanup.
+Delegate=yes
+KillMode=process

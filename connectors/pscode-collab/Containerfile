@@ -1,0 +1,42 @@
+# pscode-collab — browser-only Code-OSS session for one external collaborator.
+#
+# Built from the vscode-reh-web-linux-x64 server bundle (Code-OSS 1.128.0).
+# The bundle must sit beside this file at build time; see build-image.sh.
+#
+# Isolation properties this file is responsible for:
+#   - runs as a non-root uid, never root;
+#   - the connection token arrives by FILE (/run/collab/token), never argv,
+#     because argv is world-readable in /proc;
+#   - no compile toolchain beyond what the invited repo needs.
+# The network boundary is applied at run time (podman --network collab-net,
+# loopback-only publish); see skills/pscode-collab/container.py.
+FROM docker.io/library/debian:bookworm-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates git openssh-client python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd --create-home --shell /bin/bash --uid 10001 collab
+
+# The bundle ships its own node binary; no distro nodejs is installed.
+COPY --chown=root:root vscode-reh-web-linux-x64 /opt/pscode
+
+RUN mkdir -p /home/collab/work /home/collab/.pscode /run/collab \
+    && chown -R collab:collab /home/collab /run/collab
+
+USER collab
+WORKDIR /home/collab/work
+EXPOSE 3000
+
+# NOTE: the entrypoint path is confirmed against the built bundle in
+# build-image.sh before this image is tagged — not assumed here.
+# code-server-oss, verified 2026-08-21: bin/code-server does not exist in
+# this build (Code-OSS 1.128.0's OSS-branded product.json renames it). The
+# binary is a plain shell wrapper (`exec node out/server-main.js "$@"`) that
+# forwards every flag unchanged — confirmed by reading it, not assumed from
+# the name.
+ENTRYPOINT ["/opt/pscode/bin/code-server-oss", \
+            "--host", "0.0.0.0", "--port", "3000", \
+            "--connection-token-file", "/run/collab/token", \
+            "--server-data-dir", "/home/collab/.pscode", \
+            "--disable-telemetry", "--accept-server-license-terms"]

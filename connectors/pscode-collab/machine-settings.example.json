@@ -1,0 +1,17 @@
+{
+  "piranesiShim.waistEndpoint": "http://inference-gateway.example.ts.net:18880/v1",
+  "piranesiShim.waistEndpoints": [
+    "http://inference-gateway.example.ts.net:18880/v1"
+  ],
+  "piranesiShim.waistAuthBearer": "",
+  "piranesiShim.eideticRecallMode": "waist",
+  "piranesiShim.autonomyLevel": "piranesi",
+  "piranesiShim.maxRecallHits": 6,
+  "piranesiShim.kudzuMeshEndpoint": "http://inference-gateway.example.ts.net:18880/v1/chat/completions",
+  "piranesiShim.includeRecallContext": false,
+  "piranesiShim.launchAuditEnabled": false,
+  "piranesiShim.collectiveSyncEnabled": false,
+  "piranesiShim.collectiveAutoUpdate": false,
+  "piranesiShim.copilotHouseholdEnabled": false,
+  "chat.tools.global.autoApprove": false
+}
