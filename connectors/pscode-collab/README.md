@@ -24,7 +24,7 @@ Security pieces:
 - `webauthn_auth.py`/`enroll.py` — optional hardware-key sign-in for the
   broker door. RP ID pinning rationale is documented in `config.py`.
 - The browser carries no provider key: in-editor chat routes through a
-  household inference gateway ("waist"); see `Containerfile.kudzu4`,
+  separately deployed inference gateway; see `Containerfile.kudzu4`,
   `patch-workbench-modpack.js`, `machine-settings.json` (bearer deliberately
   empty — injected at deploy, never baked into an image layer).
 

@@ -37,8 +37,8 @@ main() {
   allow gitea-ssh 100.64.0.10 2222
   deny gitea-host-shell 100.64.0.10 22
   deny collab-host-ssh 100.64.0.11 22
-  deny wizarr-ct 10.0.0.133 5690
-  deny odysseus 127.0.0.1 18811
+  deny wizarr-host 10.0.0.133 5690
+  deny local-web-app 127.0.0.1 18811
   deny tailscale-api 100.100.100.100 80
 
   if [[ -r /var/lib/tailscale/tailscaled.state ]]; then

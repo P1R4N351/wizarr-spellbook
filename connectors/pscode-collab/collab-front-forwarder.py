@@ -15,8 +15,7 @@ the funnel in front of it is the only public path.
 """
 # P10 RELAXATIONS: relaxes rule 2 (bounded loops) in two places, both
 # deliberate and both bounded by something other than a counter: the accept()
-# loop is a daemon main loop (the same relaxation nasa-code-agent grants
-# service loops), and each _pump loop is bounded by its socket's EOF plus the
+# loop is a daemon main loop (the usual relaxation for service main loops), and each _pump loop is bounded by its socket's EOF plus the
 # connection timeout. A counter here would truncate a live session mid-stream.
 import socket
 import sys

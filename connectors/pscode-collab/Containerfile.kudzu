@@ -22,7 +22,7 @@ RUN /opt/pscode/bin/code-server-oss --install-extension /tmp/shim.vsix \
 # WORKBENCH MODPACK (added 2026-08-29)
 #
 # Installing the VSIX does not produce PSCode. A full PSCode is a rebranded
-# fork of microsoft/vscode; this lane is stock Code-OSS plus one extension, and
+# fork of microsoft/vscode; this image is stock Code-OSS plus one extension, and
 # `.vscodeignore` excludes scripts/** from the VSIX, so every workbench-level
 # patch is physically absent from this image. That is why the mode picker still
 # reads "Autopilot (Preview)" and the product still identifies as "Code - OSS".

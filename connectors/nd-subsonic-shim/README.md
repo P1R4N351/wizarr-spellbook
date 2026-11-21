@@ -33,7 +33,7 @@ the shim.
 3. write the Navidrome admin password to `/etc/nd-shim.secret` (0400)
 4. `systemctl enable --now nd-subsonic-shim`
 
-Proven end to end **in the original household deployment** (2026-07-31
+Proven end to end **in the original deployment** (2026-07-31
 deployment record, not reproducible from this repo): create → new-user
 Subsonic login → delete, plus a full Wizarr invite E2E (302, account
 appeared, cleaned up). What this repository itself proves is the sanitized

@@ -9,7 +9,7 @@
 #     because argv is world-readable in /proc;
 #   - no compile toolchain beyond what the invited repo needs.
 # The network boundary is applied at run time (podman --network collab-net,
-# loopback-only publish); see skills/pscode-collab/container.py.
+# loopback-only publish); see container.py.
 FROM docker.io/library/debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

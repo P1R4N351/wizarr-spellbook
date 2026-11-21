@@ -1,6 +1,6 @@
 """Subsonic wire format and inbound auth. Pure functions; no I/O.
 
-Modelled on skills/nd-subsonic-shim/nd-subsonic-shim.py, which proved this is
+Modelled on connectors/nd-subsonic-shim/nd-subsonic-shim.py, which proved this is
 the exact shape Wizarr's NavidromeClient accepts.
 """
 import hashlib

@@ -1,16 +1,16 @@
-# pscode-collab -kudzu4 — chat without GitHub, through the Piranesi waist.
-# Overlay on -kudzu3 (Piranesi-Main DECIDE: A, cs_mv0aff9e_12, 2026-10-09).
+# pscode-collab -kudzu4 — chat without GitHub, through the inference gateway.
+# Overlay on -kudzu3 (2026-10-09).
 #
 # Three deltas, nothing else:
 #   1. shim 0.1.0-alpha.1 -> 0.1.0-alpha.2 (adds the `piranesi-waist` model
-#      provider whose picker is the waist's /v1/models, and makes @piranesi a
+#      provider whose picker is the gateway's /v1/models, and makes @piranesi a
 #      default chat participant). Uninstall-then-install, because VS Code
 #      refuses to overwrite a user extension in place.
 #   2. the workbench modpack re-applied: it now also removes
 #      product.json `defaultChatAgent` (the Copilot setup / GitHub sign-in
 #      gate) and grants the shim the `defaultChatParticipant` proposal.
 #      Same fail-closed verify gate as before, plus a product.json assertion.
-#   3. baked workstationhine settings point at the waist (no bearer here; the bearer
+#   3. baked machine settings point at the gateway (no bearer here; the bearer
 #      arrives by a read-only mount at launch, see config.MACHINE_SETTINGS).
 FROM localhost/pscode-collab:1.128.0-kudzu3
 
@@ -36,7 +36,7 @@ RUN /opt/pscode/node /tmp/patch-workbench-modpack.js --app-root /opt/pscode \
  && rm -f /tmp/patch-workbench-modpack.js
 # BROWSER-VISIBLE BRANDING (2026-10-09): the PWA manifest, favicon and
 # installed-app icons were stock "Code - OSS" on every kudzu image because the
-# web-branding overlay (72652c9f) sat on a tag this lineage no longer builds
+# web-branding overlay sat on a tag this lineage no longer builds
 # from. Same patcher, same assets, same fail-closed verify — now in the image
 # that is actually deployed. The client-bundle identity literal is handled by
 # the modpack step above.

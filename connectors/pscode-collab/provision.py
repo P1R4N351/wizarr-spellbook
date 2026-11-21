@@ -152,7 +152,7 @@ def _write_token(collab, secret, token_dir, name=None):
 def _write_gitea_token(collab, secret, token_dir):
     """Give the collaborator their gitea token as a credential of its own.
 
-    Piranesi-Main DECIDE:C (2026-09-01): generate the connection token
+    Design (2026-09-01): generate the connection token
     independently, keep minting the gitea token, and SURFACE that token to the
     collaborator for push, rather than leaving it orphaned. Decoupling alone
     would have minted a live write:repository token that nobody holds, which

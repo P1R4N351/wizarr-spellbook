@@ -18,16 +18,15 @@
 #
 # 2026-08-25: kudzu-gateway added, by address, for exactly the reason the
 # paragraph above anticipates -- the workspace's in-editor model provider
-# (piranesiShim "Kudzu Mesh") needs the household inference mesh, and without
+# (piranesiShim "Kudzu Mesh") needs the inference mesh, and without
 # this rule its every request times out rather than failing loudly.
 #
-# TWO doors, neither of them legacy-host. A single door would still route across the
-# whole mesh (the /routed/ path picks the least-loaded warmed host, and each
-# door carries its own backend fallbacks), so the second entry is not about
-# routing -- it is so a door-HOST outage does not require a firewall change to
-# recover from. legacy-host (100.64.0.10) also runs a door and is deliberately
-# absent: it goes last in any cascade and nothing may depend on it
-# (feedback_legacy-host_never_in_workflows), and it is being decommissioned.
+# TWO doors. A single door would still route across the whole mesh (the
+# /routed/ path picks the least-loaded warmed host, and each door carries its
+# own backend fallbacks), so the second entry is not about routing -- it is so
+# a door-HOST outage does not require a firewall change to recover from. The
+# gitea host (100.64.0.10) also runs a door and is deliberately absent from
+# this set: it is the last resort in any cascade, not a primary door.
 
 table inet pscode_collab
 delete table inet pscode_collab
@@ -45,13 +44,9 @@ table inet pscode_collab {
     elements = { 100.64.0.11, 100.64.0.12 }
   }
 
-  # The Piranesi waist (piranesi-cli-rs gateway) — the in-editor chat's only
-  # model endpoint since -kudzu4. 2026-10-09, Piranesi-Main DECIDE: A
-  # (cs_mv0aff9e_12). It lives on legacy-host for now because legacy-host is the host that
-  # holds the astroclaw gateway with every household cloud key; that is in
-  # tension with the paragraph above and is recorded, not hidden. The waist's
-  # host is a deploy parameter (skills/piranesi-waist/deploy.sh): when the keys
-  # exist on a sibling, redeploy there and change this one element.
+  # The inference gateway (piranesi-cli-rs) — the in-editor chat's only
+  # model endpoint since -kudzu4 (2026-10-09). Its host is a deploy
+  # parameter: when the gateway moves, change the elements of this one set.
   set waist_v4 {
     type ipv4_addr
     elements = { 100.64.0.13, 100.64.0.10 }

@@ -39,7 +39,7 @@ something that isn't a media server at all.
 
 `tests/` exercises connector behavior against fake upstreams — no live service,
 no real user creation. "E2E-proven" statuses above refer to the original
-household deployments (deployment records); the sanitized suite here is what
+deployments (deployment records); the sanitized suite here is what
 this repository itself proves. See [`tests/README.md`](tests/README.md).
 
 ## License
@@ -49,5 +49,5 @@ derivative of Wizarr (MIT, © Wizarr contributors) — they subclass and replace
 modules of the upstream application and retain its license.
 
 ---
-*Repository docs authored by GPTPCS (gptpcs-wiz4c01). Source code retains its
-original (household) authorship; no authorship metadata was added to copied source.*
+*Source code retains its original authorship; no authorship metadata was added
+to copied source.*

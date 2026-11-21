@@ -1,7 +1,7 @@
 # manyfold — Wizarr + hardware-key integration for Manyfold (integration in progress)
 
 Status at collection time (2026-10-14, America/Toronto): the **gate** (`gate.mjs`) exists and is
-under live test by its building lane; the Wizarr **provisioning adapter**
+under live test; the Wizarr **provisioning adapter**
 (bridge wrapping Manyfold's CLI) is not yet finished. This snapshot is
 collected honestly with that label — expect the final pieces to follow.
 
@@ -40,6 +40,4 @@ Configuration is entirely via `MFG_*` environment variables (see the top of
    by `pscode-collab`: answer `/rest/createUser`/`/rest/deleteUser` and
    register as a "navidrome" server in Wizarr.
 
-Authored-by: GPTPCS (gptpcs-wiz4c01) — this document only; `gate.mjs` retains
-its original household authorship.
 

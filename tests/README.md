@@ -70,6 +70,6 @@ contacted and no real user is ever created.
 ## Historical evidence vs this suite
 
 The connector READMEs cite end-to-end proofs (real Wizarr invite → account →
-revoke) from the **original household deployments**; those are deployment
+revoke) from the **original deployments**; those are deployment
 records, not reproducible from this repository. The suite above is what
 this sanitized repository itself proves.

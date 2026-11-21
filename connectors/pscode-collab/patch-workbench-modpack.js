@@ -4,7 +4,7 @@
 // PSCode workbench modpack — server/web bundles (code-server-oss).
 //
 // WHY THIS EXISTS. A full PSCode is a rebranded fork of microsoft/vscode with
-// the shim baked in as a built-in. The browser lane (pscode-collab) instead
+// the shim baked in as a built-in. The browser build (pscode-collab) instead
 // runs a STOCK Code-OSS server bundle with the shim installed as a user VSIX,
 // and `.vscodeignore` excludes scripts/** from that VSIX -- so every
 // workbench-level patch in this repo is physically absent from that container.
@@ -66,12 +66,12 @@ const EXACT = new Map([
 
 const LONG_ENABLE_PREFIX = 'Autopilot will auto-approve all tool calls and continue working autonomously';
 
-// CHAT PROGRESS FILLER (2026-10-09, operator). While a response is pending the stock
+// CHAT PROGRESS FILLER (2026-10-09). While a response is pending the stock
 // chat view rotates jokes through its waiting line ("Bribing the hamster",
 // "Summoning Clippy", ...). In PSCode the shim's chat participant reports the
-// waist's own progress there — door, route, spool sibling, first token, token
+// gateway's own progress there — door, route, spool sibling, first token, token
 // usage — so the filler becomes a plain "Working" and is replaced by real data
-// as soon as the waist answers. Exact strings from nls.messages.json 1.128.
+// as soon as the gateway answers. Exact strings from nls.messages.json 1.128.
 const PROGRESS_FILLER = new Map([
 	['Bribing the hamster', 'Working'],
 	['Reticulating splines', 'Working'],
@@ -219,7 +219,7 @@ function patchNls(outDir, apply) {
 // The native permissions picker carries a "learn more" pseudo-option that
 // links out to vendor docs. PSCode desktop strips it (see
 // scripts/patch-vscode-native-permissions.js, which does the same thing to the
-// DESKTOP bundles). The browser lane keeps its workbench somewhere else
+// DESKTOP bundles). The browser build keeps its workbench somewhere else
 // entirely -- out/vs/code/browser/workbench/workbench.js, not
 // workbench.desktop.main.js -- which is why the desktop patcher cannot reach
 // it and the option survived here. Verified 2026-09-01: exactly 1 occurrence
@@ -365,7 +365,7 @@ function patchWorkbenchBundle(appRoot, apply) {
 	return { skipped: false, changed, detail: `${stripped.removed} learn-more action bars, ${identity.changed} identity keys` };
 }
 
-// CHAT WITHOUT GITHUB (added 2026-10-09, Piranesi-Main DECIDE: A, cs_mv0aff9e_12).
+// CHAT WITHOUT GITHUB (added 2026-10-09).
 //
 // Stock product.json names GitHub.copilot-chat as `defaultChatAgent`. The
 // workbench then registers Copilot "setup" agents as the default chat
@@ -380,8 +380,8 @@ function patchWorkbenchBundle(appRoot, apply) {
 // `extensionEnabledApiProposals` grants the shim the `defaultChatParticipant`
 // proposal its manifest declares, so @piranesi -- whose participant is
 // `isDefault` -- becomes the default agent and the model picker is populated
-// by the shim's language-model providers (the Piranesi waist). No GitHub
-// account is consulted anywhere on this path.
+// by the shim's language-model providers (the inference gateway). No GitHub
+// account is used anywhere on this path.
 const CHAT_PRODUCT = {
 	extensionEnabledApiProposals: {
 		'piranesi.piranesi-shim': ['defaultChatParticipant'],

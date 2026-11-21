@@ -6,7 +6,7 @@ retired** (2026-10-14) and preserved here for reference.
 
 They are derivative of [Wizarr](https://github.com/wizarrrr/wizarr) (MIT,
 © Wizarr contributors): each is a snapshot of the upstream module of its day
-with household patches applied. No authorship metadata has been added; see the
+with local patches applied. No authorship metadata has been added; see the
 repository LICENSE.
 
 ## `romm.py` (2026-08-30)

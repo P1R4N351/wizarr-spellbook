@@ -25,11 +25,10 @@ main() {
 
   local p10="${P10_SCAN:-skills/p10-scan.py}"
   local vuln="${VULN_SCAN:-skills/vibe-vuln-scan/vibe-vuln-scan.py}"
-  # vibe-vuln-scan.py's own default corpus resolution is
-  # <script-dir>/../../memory/vibe-coding-vulns.md — this repo has no such
-  # file at its root today (verified 2026-08-21), so a deployment that
-  # colocates the scanner without also colocating the corpus would fail
-  # silently on every scan unless the corpus path is explicit here.
+  # The vulnerability scanner resolves its default corpus relative to its own
+  # script directory, so a deployment that colocates the scanner without also
+  # colocating the corpus would fail silently on every scan unless the corpus
+  # path is explicit here (VULN_CORPUS).
   local -a vuln_corpus_args=()
   if [[ -n "${VULN_CORPUS:-}" ]]; then
     vuln_corpus_args=(--corpus "${VULN_CORPUS}")
@@ -52,7 +51,7 @@ main() {
   if test -f "${vuln}"; then
     for f in "$@"; do
       test -f "${f}" || continue
-      # vibe-vuln-scan takes exactly one positional path; loop per file so a
+      # The vulnerability scanner takes exactly one positional path; loop per file so a
       # multi-file PR gets every file scanned, not just the first.
       if ! python3 "${vuln}" "${vuln_corpus_args[@]}" --severity error "${f}" \
         >"${scratch}/vuln.out" 2>&1; then
@@ -62,7 +61,7 @@ main() {
       fi
     done
   else
-    printf 'vibe-vuln-scan not present at %s — refusing to pass a PR unscanned\n' "${vuln}" >&2
+    printf 'vulnerability scanner not present at %s — refusing to pass a PR unscanned\n' "${vuln}" >&2
     rc="${EX_VULN}"
   fi
 

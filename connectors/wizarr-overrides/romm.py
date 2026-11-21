@@ -220,7 +220,7 @@ class RommClient(RestApiMixin):
             # openapi.json) — "VIEWER" is not a member. It was previously
             # silently coerced server-side to "user" by RomM's tolerant
             # validation; send the real value directly instead of relying
-            # on that undocumented coercion. See P-BACKLOG [24c869d].
+            # on that undocumented coercion.
             "role": "user",
         }
 

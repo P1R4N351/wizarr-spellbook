@@ -30,7 +30,7 @@ main() {
 
   test -x "${VULN_SCAN}" -o -f "${VULN_SCAN}" ||
     {
-      printf 'SKIP: vibe-vuln-scan.py not found at %s\n' "${VULN_SCAN}"
+      printf 'SKIP: vulnerability scanner not found at %s\n' "${VULN_SCAN}"
       exit 0
     }
   test -f "${corpus}" ||
@@ -47,7 +47,7 @@ main() {
   rc_dirty=$?
   set -e
 
-  printf 'vibe-vuln-scan direct: clean=%d dirty=%d (expect 0, 1)\n' "${rc_clean}" "${rc_dirty}"
+  printf 'vulnerability scanner direct: clean=%d dirty=%d (expect 0, 1)\n' "${rc_clean}" "${rc_dirty}"
   test "${rc_clean}" -eq 0 || {
     printf 'FAIL: clean fixture flagged\n' >&2
     exit 1

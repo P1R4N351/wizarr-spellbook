@@ -142,7 +142,7 @@ class ConnectionTokenTest(unittest.TestCase):
         int(written, 16)
 
     def test_gitea_token_is_surfaced_in_its_own_file(self):
-        # DECIDE:C -- keep minting and hand the token to the collaborator, so
+        # Keep minting and hand the token to the collaborator, so
         # decoupling does not leave a live write:repository token nobody holds.
         deps = make_deps(self.dir)
         provision.create("alice", "pw", "e@x", "owner", "repo", deps)

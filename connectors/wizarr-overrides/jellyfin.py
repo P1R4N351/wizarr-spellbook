@@ -50,7 +50,7 @@ class JellyfinClient(RestApiMixin):
         """Return mapping of library_id → library_name.
 
         /Library/MediaFolders silently omits any library whose CollectionType
-        is "homevideos" (confirmed 2026-08-29, P-BACKLOG ffc4f5f — e.g. this
+        is "homevideos" (confirmed 2026-08-29 — e.g. this
         server's "Home Videos" and "Commercials" libraries never appear, for
         every library that DOES appear in both endpoints the MediaFolders Id
         and VirtualFolders ItemId are the identical GUID). Merge in anything

@@ -69,7 +69,7 @@ def launch(collab, port, token_path, volume, runner=subprocess.run,
     existing callers (and _resume) are unaffected.
 
     `machine_settings_path` (default: config.MACHINE_SETTINGS when that file
-    exists) mounts the workstationhine-scope workbench settings read-only, so the
+    exists) mounts the Machine-scope workbench settings read-only, so the
     waist endpoint and its bearer never enter an image layer.
     """
     if machine_settings_path is None and os.path.exists(config.MACHINE_SETTINGS):

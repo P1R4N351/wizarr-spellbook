@@ -1,24 +1,24 @@
 // manyfold-gate: transparent reverse proxy for Manyfold (guest logins pass
 // through untouched) + a minimal OIDC identity provider whose authorize step
-// is the household Alpha/Omega OpenPGP card-signed challenge.
+// is an Alpha/Omega OpenPGP card-signed challenge.
 //
-// Design (parent review, auth-design-review.md, 2026-10-15):
+// Design:
 //  - Every normal Manyfold route (including Devise local sign-in for
 //    Wizarr-provisioned guests) is proxied 1:1 to the upstream. No hardware
 //    key is ever required for guests.
 //  - /oidc/* is served HERE and implements authorization-code OIDC for
 //    exactly one client (Manyfold). The authorize page issues the same
-//    challenge format as /opt/bp-spooler (bp-spool-auth v1, class
-//    manyfold-oidc) and verifies the armored signature with gpg in an
-//    ephemeral home against the PINNED household keyring + card-lineage
+//    challenge format as the existing card-auth service (bp-spool-auth v1,
+//    class manyfold-oidc) and verifies the armored signature with gpg in an
+//    ephemeral home against the PINNED keyring + card-lineage
 //    tiers. omega -> claims for the pre-created administrator account,
 //    alpha -> per-card member identity. No second password is asked.
 //  - Nothing here trusts headers; the only bypass-shaped thing is the code
 //    and token store, both single-use, short-lived and in-memory (restart
 //    invalidates everything).
 //
-// Mechanism credit: card challenge/verify is a faithful port of
-// /opt/bp-spooler/spooler.mjs cardAuth (Piranesi-Main DECIDE: C lineage).
+// Mechanism credit: card challenge/verify is a faithful port of an existing
+// card-auth service's cardAuth, including its lineage-tier rules.
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import http from 'node:http';
@@ -61,7 +61,7 @@ const KID = crypto.createHash('sha256').update(RSA_PUB.export({ type: 'spki', fo
 
 const log = (...a) => console.log('[manyfold-gate]', ...a);
 
-// ---- card challenge (bp-spooler shape, class manyfold-oidc) -----------------
+// ---- card challenge (bp-spool-auth shape, class manyfold-oidc) --------------
 const PENDING_MAX = 256;
 const pending = new Map(); // nonce -> issued ms
 function isoNoMs(ms) { return new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z'); }
